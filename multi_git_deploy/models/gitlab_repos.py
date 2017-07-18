@@ -10,8 +10,8 @@ db = SQLAlchemy(app)
 
 class GitRepo(db.Model):
     project_id = db.Column(db.Integer, primary_key=True)
-    project_name = db.Column(db.String(50), unique=True)
-    branches = db.relationship('GitBranch', backref='repo')
+    project_name = db.Column(db.String(100), unique=True)
+    #branches = db.Column(db.Integer, db.ForeignKey('branch.id'))
 
     def __init__(self, project_id, project_name):
         self.project_id = project_id
@@ -24,22 +24,26 @@ class GitRepo(db.Model):
 class GitBranch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch_name = db.Column(db.String(100))
-    repo_id = db.Column(db.Integer, db.ForeignKey('repo.project_id'))
-    commits = db.relationship('GitCommit', backref='branch', nullable=False)
+    repo_id = db.Column(db.Integer,db.ForeignKey('git_repo.project_id'))
+    repo = db.relationship('GitRepo', backref=db.backref('branch'))
+    #commits = db.Column(db.String(40), db.ForeignKey('commit.hash'))
 
-    def __init__(self, branch_name):
+    def __init__(self, branch_name, repo=None):
         self.branch_name = branch_name
+        if repo is not None:  # TODO: typecheck sqlalchemy object
+            self.repo = repo
 
     def __repr__(self):
         return '<Branch {}>'.format(repr(self.branch_name))
 
 
 class GitCommit(db.Model):
-    commit_hash = db.Column(db.String(40), primary_key=True, unique=True)
-    commit_author = db.Column(db.String(80))
-    commit_date = db.Column(db.String(80))
-    commit_message = db.Column(db.String())
-    branch = db.Column(db.String(100), db.ForeignKey('branch.id'))
+    hash = db.Column(db.String(40), primary_key=True, unique=True)
+    author = db.Column(db.String(80))
+    date = db.Column(db.String(80))
+    message = db.Column(db.String())
+    branch_id = db.Column(db.Integer, db.ForeignKey('git_branch.id'))
+    branch = db.relationship('GitBranch', backref='commit')
 
     def __init__(self, commit_hash):
         self.commit_hash = commit_hash
