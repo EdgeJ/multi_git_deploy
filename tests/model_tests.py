@@ -47,6 +47,19 @@ class TestRepoCreate(TestCase):
         assert branch in db.session
         response = self.client.get("/")
 
+    def test_add_commit(self):
+        repo = GitRepo(1, 'puppet / nginx')
+        branch = GitBranch('master', repo=repo)
+        commit = GitCommit(
+            '945469986d00c9255cbe1fe823ad0f2991b7371e',
+            branch=branch
+        )
+        commit.author = 'John Doe'
+        commit.message = 'Adding awesome features'
+        db.session.add(repo)
+        assert commit in db.session
+        response = self.client.get("/")
+
 
 if __name__ == '__main__':
     unittest.main()

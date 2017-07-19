@@ -11,7 +11,6 @@ db = SQLAlchemy(app)
 class GitRepo(db.Model):
     project_id = db.Column(db.Integer, primary_key=True)
     project_name = db.Column(db.String(100), unique=True)
-    #branches = db.Column(db.Integer, db.ForeignKey('branch.id'))
 
     def __init__(self, project_id, project_name):
         self.project_id = project_id
@@ -26,11 +25,10 @@ class GitBranch(db.Model):
     branch_name = db.Column(db.String(100))
     repo_id = db.Column(db.Integer,db.ForeignKey('git_repo.project_id'))
     repo = db.relationship('GitRepo', backref=db.backref('branch'))
-    #commits = db.Column(db.String(40), db.ForeignKey('commit.hash'))
 
     def __init__(self, branch_name, repo=None):
         self.branch_name = branch_name
-        if repo is not None:  # TODO: typecheck sqlalchemy object
+        if isinstance(repo, GitRepo):
             self.repo = repo
 
     def __repr__(self):
@@ -45,8 +43,10 @@ class GitCommit(db.Model):
     branch_id = db.Column(db.Integer, db.ForeignKey('git_branch.id'))
     branch = db.relationship('GitBranch', backref='commit')
 
-    def __init__(self, commit_hash):
+    def __init__(self, commit_hash, branch=None):
         self.commit_hash = commit_hash
+        if isinstance(branch, GitBranch):
+            self.branch = branch
 
     def __repr__(self):
         return '<Commit {}>'.format(repr(self.commit_hash))
