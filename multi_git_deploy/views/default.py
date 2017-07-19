@@ -3,7 +3,7 @@ Default routes for multi_git_deploy
 """
 from flask import flash, redirect, render_template, request, url_for
 from multi_git_deploy import app
-from multi_git_deploy.controllers.repo_management import Gitlab
+from multi_git_deploy.controllers import database_management, repo_management
 
 
 @app.route("/")
@@ -33,8 +33,7 @@ def index():
 @app.route("/show_repos")
 def show_repos():
     project_list = []
-    gitlab = Gitlab()
-    repos = gitlab.get_repos()
+    repos = repo_management.get_repos()
     for project in repos:
         project_list.append(project['name_with_namespace'])
     return "Repos:\n{}".format(project_list)
@@ -43,7 +42,7 @@ def show_repos():
 @app.route("/repo/<int:repo>", methods=['GET', 'DELETE'])
 def view_repo(repo):
     if request.method == 'GET':
-        return "Repo ID: {}".format(repo)
+        return "Repo: {}".format(database_management.show_repo(repo).project_id)
     else:
         flash("This will delete the repo from the database (but not from Gitlab)")
         return "Repo deleted"

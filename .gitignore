@@ -2,3 +2,4 @@ env/
 config.py
 **.pyc
 **.pyo
+**.db

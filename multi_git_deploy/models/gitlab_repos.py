@@ -36,15 +36,15 @@ class GitBranch(db.Model):
 
 
 class GitCommit(db.Model):
-    hash = db.Column(db.String(40), primary_key=True, unique=True)
+    git_hash = db.Column(db.String(40), primary_key=True, unique=True)
     author = db.Column(db.String(80))
     date = db.Column(db.String(80))
     message = db.Column(db.String())
     branch_id = db.Column(db.Integer, db.ForeignKey('git_branch.id'))
     branch = db.relationship('GitBranch', backref='commit')
 
-    def __init__(self, commit_hash, branch=None):
-        self.commit_hash = commit_hash
+    def __init__(self, git_hash, branch=None):
+        self.git_hash = git_hash
         if isinstance(branch, GitBranch):
             self.branch = branch
 
