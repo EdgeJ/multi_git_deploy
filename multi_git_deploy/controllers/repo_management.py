@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-Controller functions for Gitlab API calls
+    multi_git_deploy.controllers.repo_management
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    Controller functions for Gitlab API calls.
+
+    :copyright: (c) 2017 by John Edge.
+    :license: MIT, see LICENSE for more details.
 """
+
 import requests
 from multi_git_deploy import app
 

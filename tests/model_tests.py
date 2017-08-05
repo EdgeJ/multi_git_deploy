@@ -1,6 +1,3 @@
-"""
-Testing module for git models.  Using SQLAlchemy and Flask Testing modules.
-"""
 import sys
 import unittest
 from flask import Flask

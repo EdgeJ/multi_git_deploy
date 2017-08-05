@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-File: database_management.py
-Author: John Edge
-Email: edge.jm@gmail.com
-Github: https://github.com/edgej
-Description: Functions for managing repository database objects
+    multi_git_deploy.controllers.database_management
+    ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Functions for managing repository database objects
+
+    :copyright: (c) 2017 by John Edge.
+    :license: MIT, see LICENSE for more details.
 """
+
 from multi_git_deploy import app
 from multi_git_deploy.controllers.repo_management import (
     get_branches,

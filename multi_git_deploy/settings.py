@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+    multi_git_deploy.settings
+    ~~~~~~~~~~~~~~
+
+    Default settings for the multi_git_deploy application.
+
+    These may be overridden by other configs specified in a file bound to the
+    MULTI_GIT_CONFIG environment variable.
+
+    :copyright: (c) 2017 by John Edge.
+    :license: MIT, see LICENSE for more details.
+"""
+
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))

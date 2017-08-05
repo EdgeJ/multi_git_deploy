@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-Default routes for multi_git_deploy
+    multi_git_deploy.views.default
+    ~~~~~~~~~~~~~
+
+    Default routes for multi_git_deploy
+
+    :copyright: (c) 2017 by John Edge.
+    :license: MIT, see LICENSE for more details.
 """
+
 from flask import flash, redirect, render_template, request, url_for
 from multi_git_deploy import app
 from multi_git_deploy.controllers import database_management, repo_management

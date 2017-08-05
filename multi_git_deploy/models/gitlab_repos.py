@@ -1,6 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-Models for Gitlab Repo database objects
+    multi_git_deploy.models.gitlab_repos
+    ~~~~~~~~~~~~~~~~~~
+
+    Models for Gitlab repo database objects.
+
+    :copyright: (c) 2017 by John Edge.
+    :license: MIT, see LICENSE for more details.
 """
+
 from multi_git_deploy import app
 from flask_sqlalchemy import SQLAlchemy
 
@@ -23,7 +31,7 @@ class GitRepo(db.Model):
 class GitBranch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch_name = db.Column(db.String(100))
-    repo_id = db.Column(db.Integer,db.ForeignKey('git_repo.project_id'))
+    repo_id = db.Column(db.Integer, db.ForeignKey('git_repo.project_id'))
     repo = db.relationship('GitRepo', backref=db.backref('branch'))
 
     def __init__(self, branch_name, repo=None):
