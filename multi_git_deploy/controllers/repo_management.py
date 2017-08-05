@@ -5,7 +5,7 @@ import requests
 from multi_git_deploy import app
 
 
-def get_repos():
+def list_repos():
     """
     Return json object of all repos.
     """
@@ -14,6 +14,20 @@ def get_repos():
         headers=app.config['GITLAB_TOKEN_HEADER']
     )
     return repos.json()
+
+
+def get_repo(repo_id):
+    """
+    Return json object of a single repo.
+    """
+    repo = requests.get(
+        '{url}/projects/{repo_id}'.format(
+            url=app.config['GITLAB_URL'],
+            repo_id=repo_id
+        ),
+        headers=app.config['GITLAB_TOKEN_HEADER']
+    )
+    return repo.json()
 
 
 def get_branches(repo_id):
