@@ -23,6 +23,23 @@ from multi_git_deploy.models.gitlab_repos import (
 )
 
 
+def track_repo(repo_id):
+    """
+    Check if repo is in GitLab and add it to the database.
+    """
+    api_response = get_repo(repo_id)
+    # check for error message in API response, ensure target repo exists
+    if 'message' not in api_response:
+        tracked_repo = GitRepo(api_response['id'], api_response['name'])
+        db.session.add(tracked_repo)
+        try:
+            db.session.commit()
+            return True
+        except:
+            db.session.rollback()
+            return False
+
+
 def add_branches(repo_id):
     """
     Add branches to a repo database object.
@@ -49,21 +66,30 @@ def add_branches(repo_id):
         return True
 
 
-def track_repo(repo_id):
+def add_commits(repo_id, branch):
+    """Add commits to a branch of a repository
+
+    :repo_id: TODO
+    :branch: TODO
+    :returns: TODO
+
     """
-    Check if repo is in GitLab and add it to the database.
-    """
-    api_response = get_repo(repo_id)
-    # check for error message in API response, ensure target repo exists
-    if 'message' not in api_response:
-        tracked_repo = GitRepo(api_response['id'], api_response['name'])
-        db.session.add(tracked_repo)
-        try:
-            db.session.commit()
-            return True
-        except:
-            db.session.rollback()
-            return False
+    parent_repo = GitRepo.query.filter_by(project_id=repo_id).first()
+    target_branch = GitBranch.query.filter_by(
+        repo=parent_repo,
+        branch_name=branch
+    ).first()
+    branch_commits = [
+        GitCommit(commit['id'], target_branch)
+        for commit in get_commits(repo_id, branch)
+    ]
+    try:
+        db.session.add(branch_commits)
+        db.session.commit()
+        return True
+    except:
+        db.session.rollback()
+        return False
 
 
 def show_repo(repo_id):

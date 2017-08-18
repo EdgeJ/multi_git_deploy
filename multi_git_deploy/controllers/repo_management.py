@@ -52,14 +52,15 @@ def get_branches(repo_id):
     return branches.json()
 
 
-def get_commits(repo_id):
+def get_commits(repo_id, branch):
     """
-    Return json object of all commits in a repo.
+    Return json object of all commits for a branch of a repo.
     """
     commits = requests.get(
-        '{url}/projects/{id}/repository/commits'.format(
+        '{url}/projects/{id}/repository/commits?ref_id={branch}'.format(
             url=app.config['GITLAB_URL'],
-            id=repo_id
+            id=repo_id,
+            branch=branch
         ),
         headers=app.config['GITLAB_TOKEN_HEADER']
     )
