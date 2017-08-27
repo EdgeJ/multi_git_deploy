@@ -1,0 +1,21 @@
+<body>
+  <div>
+    <table>
+      <tr>
+        <th>Project</th>
+        <th>Action</th>
+      </tr>
+      {% for project in project_list %}
+      <tr>
+        <td>{{project.name_with_namespace}}</td>
+        <td>
+          <form action="repo/{{project.id}}" method="post" />
+            <input type="submit" name="Add" id="Add" value="Add repo" />
+          <form action="repo/{{project.id}}" method="delete" />
+            <input type="submit" name="Delete" id="Delete" value="Delete repo" />
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</body>

@@ -26,31 +26,44 @@ def index():
 <p>
 <a href={0}> View available repos </a>
 </p
-<p>
-<a href={1}>Repo 1</a>
-<a href={2}>Repo 2</a>
-</p
 </div>
     """.format(
-        url_for("show_repos"),
-        url_for("view_repo", repo=1),
-        url_for("view_repo", repo=2)
+        url_for('show_repos'),
     )
 
 
 @app.route("/show_repos")
 def show_repos():
+    """
+    Show a list of all repositories available on the Gitlab server.
+    """
     project_list = []
-    repos = repo_management.get_repos()
+    repos = repo_management.list_repos()
     for project in repos:
-        project_list.append(project['name_with_namespace'])
-    return "Repos:\n{}".format(project_list)
+        project_list.append(project)
+    return render_template('view_repo.html', project_list=project_list)
 
 
-@app.route("/repo/<int:repo>", methods=['GET', 'DELETE'])
+@app.route("/repo/<int:repo>", methods=['GET', 'POST', 'DELETE'])
 def view_repo(repo):
+    """
+    When called with an HTTP GET method, views the details of a repository
+    tracked in the database. When called with POST or DELETE, either tracks
+    or deletes the repository in the database.
+
+    Arguments:
+        repo (int): The repo id of the repository object.
+    """
     if request.method == 'GET':
-        return "Repo: {}".format(database_management.show_repo(repo).project_id)
-    else:
-        flash("This will delete the repo from the database (but not from Gitlab)")
+        return "Repo: {}".format(
+            database_management.show_repo(repo).project_id
+        )
+    elif request.method == 'POST':
+        database_management.track_repo(repo)
+        flash("Repository added to the database.")
+        return redirect("/repo/{}".format(repo))
+    elif request.method == 'DELETE':
+        flash(
+            "This will delete the repo from the database (but not from Gitlab)"
+        )
         return "Repo deleted"
