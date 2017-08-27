@@ -41,7 +41,7 @@ def show_repos():
     repos = repo_management.list_repos()
     for project in repos:
         project_list.append(project)
-    return render_template('view_repo.html', project_list=project_list)
+    return render_template('show_repos.html', project_list=project_list)
 
 
 @app.route("/repo/<int:repo>", methods=['GET', 'POST', 'DELETE'])
@@ -53,17 +53,20 @@ def view_repo(repo):
 
     Arguments:
         repo (int): The repo id of the repository object.
+    Returns:
+        A redirect function.
     """
     if request.method == 'GET':
         return "Repo: {}".format(
             database_management.show_repo(repo).project_id
         )
     elif request.method == 'POST':
-        database_management.track_repo(repo)
-        flash("Repository added to the database.")
+        if database_management.repo_in_database(repo):
+            flash("Repository is already tracked in the database")
+        else:
+            database_management.track_repo(repo)
+            flash("Repository added to the database.")
         return redirect("/repo/{}".format(repo))
     elif request.method == 'DELETE':
-        flash(
-            "This will delete the repo from the database (but not from Gitlab)"
-        )
-        return "Repo deleted"
+        flash("Repo deleted")
+        return redirect("/")

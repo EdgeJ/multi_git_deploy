@@ -94,3 +94,17 @@ def add_commits(repo_id, branch):
 
 def show_repo(repo_id):
     return GitRepo.query.get_or_404(repo_id)
+
+
+def repo_in_database(repo_id):
+    """
+    A boolean to search for a repo id in the database
+
+    Args:
+        repo_id (int): id to search the database for.
+    Returns:
+        True if the repo id is found in the database, False if not.
+    """
+    if GitRepo.query.get(repo_id) is not None:
+        return True
+    return False
