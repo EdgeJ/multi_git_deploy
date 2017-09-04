@@ -9,6 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import requests
 from flask import flash, redirect, render_template, request, url_for
 from multi_git_deploy import app
 from multi_git_deploy.controllers import database_management, repo_management
@@ -36,9 +37,16 @@ def index():
 def show_repos():
     """
     Show a list of all repositories available on the Gitlab server.
+
+    Returns:
+        A rendered template with all repos or a 503 error if the service cannot
+        connect to the remote Gitlab service.
     """
     project_list = []
-    repos = repo_management.list_repos()
+    try:
+        repos = repo_management.list_repos()
+    except requests.exceptions.ConnectionError:
+        return "Error connecting to Gitlab", 503
     for project in repos:
         project_list.append(project)
     return render_template('show_repos.html', project_list=project_list)
