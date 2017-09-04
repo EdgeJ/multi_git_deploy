@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    multi_git_deploy.views.default
+    multi_git_deploy.routes
     ~~~~~~~~~~~~~
 
     Default routes for multi_git_deploy

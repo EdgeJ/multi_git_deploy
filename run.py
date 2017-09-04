@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from multi_git_deploy.views.default import app
+from multi_git_deploy.routes import app
 
 
 if __name__ == '__main__':
