@@ -20,6 +20,7 @@ class TestRepoTrack(TestCase):
     """
     def create_app(self):
         app = Flask(__name__)
+        app.config['DEBUG'] = True
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'  # in-memory db
         db.init_app(app)
