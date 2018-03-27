@@ -15,13 +15,15 @@ from multi_git_deploy import app
 API_SESSION = requests.Session()
 API_SESSION.headers.update(app.config['GITLAB_TOKEN_HEADER'])
 
+GITLAB_URL = app.config['GITLAB_URL']
+
 
 def list_repos():
     """
     Return json object of all repos.
     """
     repos = API_SESSION.get(
-        '{}/projects'.format(app.config['GITLAB_URL']),
+        '{}/projects'.format(GITLAB_URL),
     )
     return repos.json()
 
@@ -32,7 +34,7 @@ def get_repo(repo_id):
     """
     repo = API_SESSION.get(
         '{url}/projects/{repo_id}'.format(
-            url=app.config['GITLAB_URL'],
+            url=GITLAB_URL,
             repo_id=repo_id
         )
     )
@@ -45,7 +47,7 @@ def get_branches(repo_id):
     """
     branches = API_SESSION.get(
         '{url}/projects/{id}/repository/branches'.format(
-            url=app.config['GITLAB_URL'],
+            url=GITLAB_URL,
             id=repo_id
         )
     )
@@ -58,7 +60,7 @@ def get_commits(repo_id, branch):
     """
     commits = API_SESSION.get(
         '{url}/projects/{id}/repository/commits?ref_id={branch}'.format(
-            url=app.config['GITLAB_URL'],
+            url=GITLAB_URL,
             id=repo_id,
             branch=branch
         )
@@ -76,7 +78,7 @@ def show_diff(repo_id, commit_hash):
     """
     diff = API_SESSION.get(
         '{url}/projects/{id}/repository/commits/{sha}/diff'.format(
-            url=app.config['GITLAB_URL'],
+            url=GITLAB_URL,
             id=repo_id,
             sha=commit_hash
         )
@@ -96,9 +98,60 @@ def cherry_pick(repo_id, target_branch, commit_hash):
     """
     commit_string = API_SESSION.post(
         '{url}/projects/{id}/repository/commits/{hash}/cherry_pick'.format(
-            url=app.config['GITLAB_URL'],
+            url=GITLAB_URL,
             id=repo_id,
             hash=commit_hash
         ), data={'branch': target_branch}
     )
     return commit_string.json()
+
+
+def list_merge_requests(repo_id, source_branch=None):
+    """TODO: Docstring for list_merge_requests.
+    :returns: TODO
+
+    """
+    if source_branch is not None:
+        request_string = '{url}/projects/{id}/merge_requests?state=opened&source_branch={source}'.format(
+            url=GITLAB_URL,
+            id=repo_id,
+            soure=source_branch
+        )
+    else:
+        request_string = '{url}/projects/{id}/merge_requests?state=opened'.format(
+            url=GITLAB_URL,
+            id=repo_id
+        )
+
+    merge_requests = API_SESSION.get(request_string)
+    return merge_requests.json()
+
+
+def show_merge_changes(repo_id, mr_id):
+    """TODO: Docstring for show_merge_changes.
+
+    :repo_id: TODO
+    :returns: TODO
+
+    """
+    changes = API_SESSION.get(
+        '{url}/projects/{id}/merge_requests/{merge_id}/changes'.format(
+            url=GITLAB_URL,
+            id=repo_id,
+            merge_id=mr_id
+        )
+    )
+    return changes.json()
+
+
+def accept_merge(repo_id, mr_id):
+    """TODO: Docstring for accept_merge.
+    :returns: TODO
+
+    """
+    merge_accept = API_SESSION.put(
+        '{url}/projects/{id}/merge_requests/{merge_id}/merge'.format(
+            url=GITLAB_URL, id=repo_id, merge_id=mr_id
+        )
+    )
+    return merge_accept
