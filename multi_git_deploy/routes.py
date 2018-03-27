@@ -11,8 +11,12 @@
 
 import requests
 from flask import flash, redirect, render_template, request, url_for
-from multi_git_deploy import app
+from multi_git_deploy import app, log_setup
 from multi_git_deploy.controllers import database_management, repo_management
+
+
+if not app.config['TESTING']:
+    log_setup()
 
 
 @app.route("/")

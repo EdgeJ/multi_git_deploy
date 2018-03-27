@@ -38,7 +38,7 @@ def log_setup():
     if os.path.exists(logpath):
         log_file = '{path}/multi-git-deploy.log'.format(path=logpath)
     else:
-        log_file = './multi-git-deploy.log'
+        raise IOError
 
     rotating_logfile = RotatingFileHandler(
         log_file,
@@ -52,7 +52,3 @@ def log_setup():
         rotating_logfile.setLevel(logging.ERROR)
 
     app.logger.addHandler(rotating_logfile)
-
-
-if not app.config['TESTING']:
-    log_setup()
