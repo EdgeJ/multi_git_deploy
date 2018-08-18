@@ -1,11 +1,17 @@
 import sys
 import unittest
+import gitlab_mock_api
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_testing import TestCase
 # Add top level directory to the path to allow us to import a module from a
 # directory tree above the cwd
 sys.path.insert(0, '../')
+import multi_git_deploy
+
+multi_git_deploy.app.config['TESTING'] = True
+multi_git_deploy.app.config['GITLAB_TOKEN_HEADER'] = 'test'
+multi_git_deploy.app.config['GITLAB_URL'] = 'mock://gitlab'
 from multi_git_deploy.models.gitlab_repos import db
 from multi_git_deploy.controllers.database_management import (
     track_repo,
