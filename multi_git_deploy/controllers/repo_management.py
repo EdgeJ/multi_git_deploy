@@ -13,7 +13,9 @@ import requests
 from multi_git_deploy import app
 
 API_SESSION = requests.Session()
-API_SESSION.headers.update(app.config['GITLAB_TOKEN_HEADER'])
+API_SESSION.headers.update(
+    {'private-token': app.config['GITLAB_TOKEN_HEADER']}
+)
 
 GITLAB_URL = app.config['GITLAB_URL']
 
@@ -115,7 +117,7 @@ def list_merge_requests(repo_id, source_branch=None):
         request_string = '{url}/projects/{id}/merge_requests?state=opened&source_branch={source}'.format(
             url=GITLAB_URL,
             id=repo_id,
-            soure=source_branch
+            source=source_branch
         )
     else:
         request_string = '{url}/projects/{id}/merge_requests?state=opened'.format(

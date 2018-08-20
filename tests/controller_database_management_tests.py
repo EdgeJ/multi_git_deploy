@@ -1,12 +1,14 @@
+import os
 import sys
 import unittest
-import gitlab_mock_api
+import unittest.mock
+import requests_mock
+from fixtures.gitlab_mock_api import mock_json
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_testing import TestCase
-# Add top level directory to the path to allow us to import a module from a
-# directory tree above the cwd
-sys.path.insert(0, '../')
+# add path level above for importing the module
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import multi_git_deploy
 
 multi_git_deploy.app.config['TESTING'] = True
@@ -39,19 +41,33 @@ class TestRepoTrack(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_track_repo(self):
+    @requests_mock.Mocker()
+    def test_track_repo(self, mocker):
         """
         Test adding a repo from the Gitlab API to the db.
         """
-        track_repo(1)
-        assert show_repo(1)
+        mocker.register_uri(
+            'GET',
+            'mock://gitlab/projects/4',
+            json=mock_json['projects'][0],
+            status_code=200
+        )
+        track_repo(4)
+        assert show_repo(4)
         response = self.client.get('/')
 
-    def test_add_branch(self):
+    @requests_mock.Mocker()
+    def test_add_branch(self, mocker):
         """
         Test adding branches from the Gitlab API to the db.
         """
-        add_branches(1)
+        mocker.register_uri(
+            'GET',
+            'mock://gitlab/projects/4',
+            json=mock_json['projects'][0],
+            status_code=200
+        )
+        add_branches(4)
         response = self.client.get('/')
 
 
