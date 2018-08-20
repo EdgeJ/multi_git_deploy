@@ -1,30 +1,31 @@
+"""
+Unit tests for controllers.database_management
+"""
 import os
 import sys
 import unittest
 import unittest.mock
-import requests_mock
-from fixtures.gitlab_mock_api import mock_json
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_testing import TestCase
+
 # add path level above for importing the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import multi_git_deploy
+from fixtures.gitlab_mock_api import mock_json
+from tests import TestRunner
 
+# set config before importing modules
 multi_git_deploy.app.config['TESTING'] = True
-multi_git_deploy.app.config['GITLAB_TOKEN_HEADER'] = 'test'
-multi_git_deploy.app.config['GITLAB_URL'] = 'mock://gitlab'
-from multi_git_deploy.models.gitlab_repos import db
-from multi_git_deploy.controllers.database_management import (
-    track_repo,
-    add_branches,
-    show_repo
-)
+
+from multi_git_deploy.models.gitlab_repos import db, GitRepo
+from multi_git_deploy.controllers import database_management
 
 
-class TestRepoTrack(TestCase):
+class TestDatabaseController(TestCase):
     """
-    Test tracking repos in the database.
+    Test controllers responsible for managing the SQL database
     """
     def create_app(self):
         app = Flask(__name__)
@@ -36,40 +37,37 @@ class TestRepoTrack(TestCase):
 
     def setUp(self):
         db.create_all()
+        db.session.add(GitRepo(project_id=1, project_name='foo'))
+        db.session.commit()
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
-    @requests_mock.Mocker()
-    def test_track_repo(self, mocker):
+    def test_track_repo(self):
         """
         Test adding a repo from the Gitlab API to the db.
         """
-        mocker.register_uri(
-            'GET',
-            'mock://gitlab/projects/4',
-            json=mock_json['projects'][0],
-            status_code=200
+        self.assertTrue(
+            database_management.track_repo(mock_json['projects'][0])
         )
-        track_repo(4)
-        assert show_repo(4)
-        response = self.client.get('/')
 
-    @requests_mock.Mocker()
-    def test_add_branch(self, mocker):
+    def test_add_branch(self):
         """
         Test adding branches from the Gitlab API to the db.
         """
-        mocker.register_uri(
-            'GET',
-            'mock://gitlab/projects/4',
-            json=mock_json['projects'][0],
-            status_code=200
+        self.assertTrue(
+            database_management.add_branches(1, mock_json['branches'])
         )
-        add_branches(4)
-        response = self.client.get('/')
+
+    def test_show_repo(self):
+        database_management.show_repo(1)
+
+    def test_repo_in_database(self):
+        self.assertTrue(
+            database_management.repo_in_database(1)
+        )
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(testRunner=TestRunner)

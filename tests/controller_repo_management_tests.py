@@ -1,17 +1,21 @@
+"""
+Unit tests for controllers.repo_management
+"""
 import os
 import sys
 import unittest
 import unittest.mock
+
 import requests_mock
-from fixtures.gitlab_mock_api import mock_json
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_testing import TestCase
+
 # add path level above for importing the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import multi_git_deploy
+from fixtures.gitlab_mock_api import mock_json
 from tests import TestRunner
 
+# set configurations before importing the controller module
 multi_git_deploy.app.config['TESTING'] = True
 multi_git_deploy.app.config['GITLAB_TOKEN_HEADER'] = 'test'
 multi_git_deploy.app.config['GITLAB_URL'] = 'mock://gitlab'
@@ -20,26 +24,13 @@ from multi_git_deploy.controllers import repo_management
 
 
 @requests_mock.Mocker()
-class TestRepo(TestCase):
+class TestRepo(unittest.TestCase):
     """
     Test controllers responsible for repo management via the Gitlab api.
 
     Uses static methods for helpers to mock up the api url and call the
     functions from the module for running test cases against
     """
-    def create_app(self):
-        app = Flask(__name__)
-        app.config['DEBUG'] = True
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'  # in-memory db
-        return app
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     @staticmethod
     def _list_repos(mocker):
         mocker.register_uri(
@@ -77,7 +68,8 @@ class TestRepo(TestCase):
             "default_branch": "master",
             "name": "Diaspora Client"
         }.items():
-            self.assertEqual(self._get_repo(mocker)[key], val)
+            with self.subTest(key=key, val=val):
+                self.assertEqual(self._get_repo(mocker)[key], val)
 
     @staticmethod
     def _get_branches(mocker):
@@ -116,8 +108,6 @@ class TestRepo(TestCase):
 
     def test_list_merge_requests_with_source_branch_master_returns_list(self, mocker):
         self.assertIsInstance(self._list_merge_request(mocker, 'master'), list)
-
-
 
 
 if __name__ == '__main__':
