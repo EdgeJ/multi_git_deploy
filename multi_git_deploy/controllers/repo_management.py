@@ -95,7 +95,7 @@ def cherry_pick(repo_id, target_branch, commit_hash):
     :repo_id: id of the repo to commit to.
     :target_branch: target branch to commit to.
     :commit_hash: SHA hash for the commit being cherry picked.
-    :returns: JSON object from the Gitlab API request.
+    :returns: requests response from the Gitlab api call.
 
     """
     commit_string = API_SESSION.post(
@@ -105,7 +105,7 @@ def cherry_pick(repo_id, target_branch, commit_hash):
             hash=commit_hash
         ), data={'branch': target_branch}
     )
-    return commit_string.json()
+    return commit_string
 
 
 def list_merge_requests(repo_id, source_branch=None):
@@ -147,9 +147,23 @@ def show_merge_changes(repo_id, mr_id):
 
 
 def accept_merge(repo_id, mr_id):
-    """TODO: Docstring for accept_merge.
-    :returns: TODO
+    """
+    Accept a merge request via the Gitlab api.
 
+    Expect the response to include JSON of the merge request details as well as
+    status code indicating success or type of failure:
+
+    200 - success
+    401 - not authorized
+    405 - merge conflicts
+    406 - already merged
+    409 - HEAD changed (needs to be refreshed)
+
+    :repo_id: (int) The ID of the Gitlab project.
+    :mr_id: (int) The ID of the merge request to be merged.
+
+    :returns: A requests response object representing the result of the Gitlab
+    API call.
     """
     merge_accept = API_SESSION.put(
         '{url}/projects/{id}/merge_requests/{merge_id}/merge'.format(

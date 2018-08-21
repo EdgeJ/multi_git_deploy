@@ -6,14 +6,15 @@ import sys
 import unittest
 import unittest.mock
 
+import requests
 import requests_mock
 from flask import Flask
 
 # add path level above for importing the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import multi_git_deploy
-from fixtures.gitlab_mock_api import mock_json
 from tests import TestRunner
+from tests.fixtures.gitlab_mock_api import mock_json
 
 # set configurations before importing the controller module
 multi_git_deploy.app.config['TESTING'] = True
@@ -108,6 +109,44 @@ class TestRepo(unittest.TestCase):
 
     def test_list_merge_requests_with_source_branch_master_returns_list(self, mocker):
         self.assertIsInstance(self._list_merge_request(mocker, 'master'), list)
+
+    @staticmethod
+    def _merge_accept(mocker):
+        mocker.register_uri(
+            'PUT',
+            'mock://gitlab/projects/1/merge_requests/1/merge',
+            json=mock_json['merge_accept'],
+        )
+        return repo_management.accept_merge(1, 1)
+
+    def test_merge_accept_returns_request_obj(self, mocker):
+        self.assertIsInstance(self._merge_accept(mocker), requests.models.Response)
+
+    def test_merge_accept_json_has_keys(self, mocker):
+        merge_accept = self._merge_accept(mocker).json()
+        for key, val in {
+                'id': 1,
+                'iid': 1,
+                'target_branch': 'master',
+                'source_branch': 'test1',
+                'title': 'test1',
+                'state': 'merged'
+        }.items():
+            self.assertEqual(merge_accept[key], val)
+
+    def test_merge_accept_status_code_is_200(self, mocker):
+        merge_accept = self._merge_accept(mocker)
+        self.assertEqual(merge_accept.status_code, 200)
+
+    def test_merge_accept_returns_error_statuses(self, mocker):
+        for status in [401, 405, 406, 409]:
+            mocker.register_uri(
+                'PUT',
+                'mock://gitlab/projects/1/merge_requests/1/merge',
+                status_code=status
+            )
+            accept_merge_status_code = repo_management.accept_merge(1, 1).status_code
+            self.assertEqual(accept_merge_status_code, status)
 
 
 if __name__ == '__main__':

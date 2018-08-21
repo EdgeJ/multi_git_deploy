@@ -13,8 +13,8 @@ from flask_testing import TestCase
 # add path level above for importing the module
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import multi_git_deploy
-from fixtures.gitlab_mock_api import mock_json
 from tests import TestRunner
+from tests.fixtures.gitlab_mock_api import mock_json
 
 # set config before importing modules
 multi_git_deploy.app.config['TESTING'] = True

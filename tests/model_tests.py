@@ -1,8 +1,11 @@
 import sys
 import unittest
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_testing import TestCase
+
+from tests import TestRunner
 # Add top level directory to the path to allow us to import a module from a
 # directory tree above the cwd
 sys.path.insert(0, '../')
@@ -59,4 +62,4 @@ class TestRepoCreate(TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(testRunner=TestRunner)
